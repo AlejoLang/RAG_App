@@ -12,6 +12,8 @@
     "lint": "bun --cwd apps/frontend lint",
     "typecheck": "bunx tsc -p apps/backend/tsconfig.json --noEmit",
     "check": "bun run typecheck && bun run lint && bun run build"
+  },
+  "dependencies": {
+    "@google/genai": "^2.12.0"
   }
 }
-
