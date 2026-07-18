@@ -1,7 +1,10 @@
 import "./App.css";
+import { MainPage } from "./pages/mainPage";
 
 function App() {
-  return <>Hello from frontend</>;
+  return <div className="app">
+    <MainPage />
+  </div>;
 }
 
 export default App;

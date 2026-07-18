@@ -1,0 +1,38 @@
+.main-sidebar {
+  flex-shrink: 0;
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.open-upload-form-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.open-upload-form-button:hover {
+  background-color: #8a2be2;
+}
+
+.uploaded-files {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-title {
+  font-size: 0.875rem;
+  word-break: break-word;
+  list-style: none;
+}
+
