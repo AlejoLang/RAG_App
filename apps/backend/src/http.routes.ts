@@ -106,4 +106,8 @@ export const httpRoutes = new Elysia()
         query: t.String(),
       }),
     }
-  );
+  )
+  .get("/documents_info", async () => {
+    const documentsInfo = await db.select().from(documents);
+    return documentsInfo;
+  });
