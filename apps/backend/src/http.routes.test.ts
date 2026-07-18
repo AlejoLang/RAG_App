@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { app } from "./http.routes";
+import { httpRoutes } from "./http.routes";
 import { embedText } from "./gemini_tools/embedding";
 import { db } from "./db";
 import { afterEach } from "vitest";
@@ -19,7 +19,7 @@ describe("POST /file_upload", () => {
     const formData = new FormData();
     formData.append("file", new File(["content"], "file.unsupported"));
 
-    const response = await app.handle(
+    const response = await httpRoutes.handle(
       new Request("http://localhost/file_upload", {
         method: "POST",
         body: formData,
@@ -34,7 +34,7 @@ describe("POST /file_upload", () => {
   it("returns an error when no file is uploaded", async () => {
     const formData = new FormData();
 
-    const response = await app.handle(
+    const response = await httpRoutes.handle(
       new Request("http://localhost/file_upload", {
         method: "POST",
         body: formData,
@@ -77,7 +77,7 @@ describe("POST /file_upload", () => {
       new File(["This is a test text file."], "file.txt"),
     );
 
-    const response = await app.handle(
+    const response = await httpRoutes.handle(
       new Request("http://localhost/file_upload", {
         method: "POST",
         body: formData,
@@ -98,7 +98,7 @@ describe("POST /file_upload", () => {
       new File(["# Title\n\nThis is a test markdown file."], "file.md"),
     );
 
-    const response = await app.handle(
+    const response = await httpRoutes.handle(
       new Request("http://localhost/file_upload", {
         method: "POST",
         body: formData,
