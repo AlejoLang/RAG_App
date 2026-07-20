@@ -1,7 +1,4 @@
-export const mdSplitByChunks = (
-  text: string,
-  chunkSize: number,
-): string[] => {
+export const mdSplitByChunks = (text: string, chunkSize: number): string[] => {
   const chunks: string[] = [];
   if (chunkSize <= 0) {
     return chunks;
@@ -40,5 +37,32 @@ export const mdSplitBySubtitles = (text: string): string[] => {
     .map((subtitle) => subtitle.trim())
     .filter((subtitle) => subtitle.length > 0);
   return subtitles;
+};
+
+export const mdSplitByParagraphsToChunks = (
+  text: string,
+  chunkSize: number,
+): string[] => {
+  if (chunkSize <= 0) {
+    return [];
+  }
+  const paragraphs = mdSplitByParagraphs(text);
+  const chunks: string[] = [];
+  let currentChunk = "";
+
+  for (const paragraph of paragraphs) {
+    currentChunk += (currentChunk ? "\n\n" : "") + paragraph;
+
+    if (currentChunk.length >= chunkSize) {
+      chunks.push(currentChunk);
+      currentChunk = "";
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 };
 

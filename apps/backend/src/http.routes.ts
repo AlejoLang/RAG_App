@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
-import { txtSplitByChunks } from "./utils/txtSplitter";
-import { mdSplitByChunks } from "./utils/mdSplitter";
+import { txtSplitByParagraphsToChunks } from "./utils/txtSplitter";
+import { mdSplitByParagraphsToChunks } from "./utils/mdSplitter";
 import { embedText } from "./gemini_tools/embedding";
 import { db } from "./db";
 import { documents, chunks as chunksTable } from "./db/schema";
@@ -26,11 +26,11 @@ export const httpRoutes = new Elysia()
       switch (fileExtension.toLowerCase()) {
         case "txt":
           const txtContent = await file.text();
-          chunks = txtSplitByChunks(txtContent, 1000);
+          chunks = txtSplitByParagraphsToChunks(txtContent, 1000);
           break;
         case "md":
           const mdContent = await file.text();
-          chunks = mdSplitByChunks(mdContent, 1000);
+          chunks = mdSplitByParagraphsToChunks(mdContent, 1000);
           break;
         default:
           set.status = 400;

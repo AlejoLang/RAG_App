@@ -3,6 +3,7 @@ import {
   mdSplitByChunks,
   mdSplitBySubtitles,
   mdSplitByTitles,
+  mdSplitByParagraphsToChunks,
 } from "./mdSplitter";
 
 describe("mdSplitByChunks", () => {
@@ -95,5 +96,35 @@ describe("mdSplitBySubtitles", () => {
       "##Subtitle2\nContent2",
       "##Subtitle3\nContent3",
     ]);
+  });
+});
+
+describe("mdSplitByParagraphsToChunks", () => {
+  it("splits markdown paragraphs into chunks of the requested size", () => {
+    const text = "Paragraph 1\n\nParagraph 2\n\nParagraph 3";
+    expect(mdSplitByParagraphsToChunks(text, 20)).toEqual([
+      "Paragraph 1\n\nParagraph 2",
+      "Paragraph 3",
+    ]);
+  });
+  it("returns an empty array for empty input", () => {
+    expect(mdSplitByParagraphsToChunks("", 20)).toEqual([]);
+  });
+
+  it("returns the whole text if chunk size is larger than text length", () => {
+    const text = "Paragraph 1\n\nParagraph 2";
+    expect(mdSplitByParagraphsToChunks(text, 50)).toEqual([
+      "Paragraph 1\n\nParagraph 2",
+    ]);
+  });
+
+  it("handles chunk size of 0", () => {
+    const text = "Paragraph 1\n\nParagraph 2";
+    expect(mdSplitByParagraphsToChunks(text, 0)).toEqual([]);
+  });
+
+  it("handles negative chunk size", () => {
+    const text = "Paragraph 1\n\nParagraph 2";
+    expect(mdSplitByParagraphsToChunks(text, -1)).toEqual([]);
   });
 });

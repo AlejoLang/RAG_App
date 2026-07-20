@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   txtSplitByChunks,
   txtSplitByParagraphs,
+  txtSplitByParagraphsToChunks,
 } from "./txtSplitter";
 
 describe("txtSplitByChunks", () => {
@@ -83,5 +84,36 @@ describe("txtSplitByParagraphs", () => {
 
   it("returns an empty array for empty input", () => {
     expect(txtSplitByParagraphs("")).toEqual([]);
+  });
+});
+
+describe("txtSplitByParagraphsToChunks", () => {
+  it("splits text into chunks of the requested size", () => {
+    const text = "Paragraph 1\n\nParagraph 2\n\nParagraph 3";
+    expect(txtSplitByParagraphsToChunks(text, 20)).toEqual([
+      "Paragraph 1\n\nParagraph 2",
+      "Paragraph 3",
+    ]);
+  });
+
+  it("returns an empty array for empty input", () => {
+    expect(txtSplitByParagraphsToChunks("", 20)).toEqual([]);
+  });
+
+  it("returns the whole text if chunk size is larger than text length", () => {
+    const text = "Paragraph 1\n\nParagraph 2";
+    expect(txtSplitByParagraphsToChunks(text, 50)).toEqual([
+      "Paragraph 1\n\nParagraph 2",
+    ]);
+  });
+
+  it("returns an empty array for chunk size of 0", () => {
+    const text = "Paragraph 1\n\nParagraph 2\n\nParagraph 3";
+    expect(txtSplitByParagraphsToChunks(text, 0)).toEqual([]);
+  });
+  
+  it("returns an empty array for negative chunk size", () => {
+    const text = "Paragraph 1\n\nParagraph 2\n\nParagraph 3";
+    expect(txtSplitByParagraphsToChunks(text, -5)).toEqual([]);
   });
 });

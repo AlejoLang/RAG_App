@@ -18,3 +18,27 @@ export const txtSplitByParagraphs = (text: string): string[] => {
   const paragraphs: string[] = text.split(/\n\s*\n/).map(paragraph => paragraph.trim()).filter(paragraph => paragraph.length > 0);
   return paragraphs;
 }
+
+export const txtSplitByParagraphsToChunks = (text: string, chunkSize: number): string[] => {
+  if (chunkSize <= 0) {
+    return [];
+  }
+  const paragraphs = txtSplitByParagraphs(text);
+  const chunks: string[] = [];
+  let currentChunk = "";
+
+  for (const paragraph of paragraphs) {
+    currentChunk += (currentChunk ? "\n\n" : "") + paragraph;
+
+    if (currentChunk.length >= chunkSize) {
+      chunks.push(currentChunk);
+      currentChunk = "";
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
+}
