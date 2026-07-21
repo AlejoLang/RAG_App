@@ -4,7 +4,7 @@ import { mdSplitByParagraphsToChunks } from "./utils/mdSplitter";
 import { embedText } from "./gemini_tools/embedding";
 import { db } from "./db";
 import { documents, chunks as chunksTable } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getSimilarChunks } from "./utils/getSimilarChuncks";
 import { aiQuery } from "./gemini_tools/aiQuerry";
 
@@ -55,7 +55,7 @@ export const httpRoutes = new Elysia()
         chunks.map(async (chunkText, index) => {
           const embedding = await embedText(chunkText);
           return { content: chunkText, chunkIndex: index, embedding };
-        })
+        }),
       );
 
       await db.insert(chunksTable).values(
@@ -64,7 +64,7 @@ export const httpRoutes = new Elysia()
           content: c.content,
           chunkIndex: c.chunkIndex,
           embedding: c.embedding,
-        }))
+        })),
       );
 
       await db
@@ -73,8 +73,12 @@ export const httpRoutes = new Elysia()
         .where(eq(documents.id, documentRecord.id));
 
       set.status = 200;
-      return { message: "File processed successfully" };
-
+      return {
+        documentRecord: {
+          ...documentRecord,
+          status: "ready",
+        },
+      };
     },
     {
       body: t.Object({
@@ -93,9 +97,11 @@ export const httpRoutes = new Elysia()
       }
 
       const embedding = await embedText(query);
-      
+
       const similarChunks = getSimilarChunks(embedding, 5);
-      const similarChunksContent = (await similarChunks).map(chunk => chunk.content);
+      const similarChunksContent = (await similarChunks).map(
+        (chunk) => chunk.content,
+      );
       const response = await aiQuery(query, similarChunksContent);
 
       set.status = 200;
@@ -105,9 +111,13 @@ export const httpRoutes = new Elysia()
       body: t.Object({
         query: t.String(),
       }),
-    }
+    },
   )
   .get("/documents_info", async () => {
-    const documentsInfo = await db.select().from(documents);
+    const documentsInfo = await db
+      .select()
+      .from(documents)
+      .orderBy(desc(documents.uploadedAt));
     return documentsInfo;
   });
+

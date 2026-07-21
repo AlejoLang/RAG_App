@@ -23,7 +23,7 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
         });
         const {documentRecord}: { documentRecord: Document } = await response.json();
         fileInput.value = "";
-        setDocumentsInfo((prevDocuments) => [...prevDocuments, documentRecord]);
+        setDocumentsInfo((prevDocuments) => [documentRecord, ...prevDocuments]);
         console.log("Upload response:", response);
         alert("File uploaded successfully!");
       } else {
