@@ -14,20 +14,71 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
       const fileInput = fileInputRef?.current;
       if (fileInput && fileInput?.files && fileInput?.files?.length > 0) {
         const file = fileInput.files[0];
+        const fileExtension = file.name.split(".").pop() ?? "";
+        if (!["txt", "md"].includes(fileExtension.toLowerCase())) {
+          alert("Unsupported file type. Please upload a .txt or .md file.");
+          return;
+        }
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/file_upload', {
-          method: "POST",
-          body: formData,
-        });
-        const {documentRecord}: { documentRecord: Document } = await response.json();
+        const uploadRequest = fetch(
+          import.meta.env.VITE_BACKEND_URL + "/file_upload",
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+
+        const documentRecordPlaceholder: Document = {
+          id: "-1",
+          filename: file.name,
+          contentType: file.type,
+          uploadedAt: new Date().toISOString(),
+          status: "processing",
+        };
+
         fileInput.value = "";
-        setDocumentsInfo((prevDocuments) => [documentRecord, ...prevDocuments]);
-        console.log("Upload response:", response);
-        alert("File uploaded successfully!");
+        (document.querySelector("#upload-modal") as HTMLDialogElement)?.close();
+        setDocumentsInfo((prevDocuments) => [
+          documentRecordPlaceholder,
+          ...prevDocuments,
+        ]);
+
+        try {
+          const response = await uploadRequest;
+          if (!response.ok) {
+            console.error("Upload failed:", response.statusText);
+            setDocumentsInfo((prevDocuments) =>
+              prevDocuments.map((doc) =>
+                doc.filename === documentRecordPlaceholder.filename
+                  ? { ...doc, status: "failed" }
+                  : doc,
+              ),
+            );
+            return;
+          }
+          const { documentRecord }: { documentRecord: Document } =
+            await response.json();
+          setDocumentsInfo((prevDocuments) =>
+            prevDocuments.map((doc) =>
+              doc.filename === documentRecordPlaceholder.filename
+                ? documentRecord
+                : doc,
+            ),
+          );
+        } catch (error) {
+          console.error("Upload failed:", error);
+          setDocumentsInfo((prevDocuments) =>
+            prevDocuments.map((doc) =>
+              doc.filename === documentRecordPlaceholder.filename
+                ? { ...doc, status: "failed" }
+                : doc,
+            ),
+          );
+        }
       } else {
-        console.log("No file selected for upload.");
+        alert("Please select a file to upload.");
       }
     };
 
@@ -41,6 +92,7 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
             type="file"
             id="file-input"
             className="file-input"
+            accept=".txt,.md"
             ref={fileInputRef}
           />
         </div>

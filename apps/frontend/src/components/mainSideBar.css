@@ -54,17 +54,24 @@
   text-overflow: ellipsis;
 }
 
-.file-type {
+.file-status {
   font-size: 0.6rem;
   border-radius: 1.25rem;
   border: 1px solid #ccc;
   background-color: #f0f0f0;
   color: #333;
-  padding: 0.1rem 0.2rem;
-  min-width: 2.5rem;
+  padding: 0.5rem 0.5rem;
+  width: fit-content;
   height: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.processing {
+  background-color: #faebbc;
+}
+
+.failed {
+  background-color: #ff6e7c;
+}

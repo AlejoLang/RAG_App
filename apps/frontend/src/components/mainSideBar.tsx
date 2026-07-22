@@ -28,7 +28,15 @@ export const MainSideBar = ({
           {documentsInfo?.map((file, index) => (
             <li key={index} className="file-info">
               <div className="file-title">{file.filename}</div>
-              <div className="file-type">{typeToCompact(file.contentType)}</div>
+              {
+                file.status === "processing" ? (
+                  <div className="file-status processing">Processing</div>
+                ) : file.status === "ready" ? (
+                  <div className="file-status ready">{typeToCompact(file.contentType)}</div>
+                ) : (
+                  <div className="file-status failed">Failed</div>
+                )
+              }
             </li>
           ))}
         </ul>
