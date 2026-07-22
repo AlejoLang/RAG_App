@@ -13,34 +13,46 @@ export const ChatBox = () => {
       timestamp: Date.now(),
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-    const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
-
-    const response = await fetch(backendUrl + "/query", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query: inputFieldRef.current?.value || "" }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const assistantMessage: Message = {
-        text: data.response,
-        sender: "assistant",
-        timestamp: Date.now(),
-      };
-      setMessages((prevMessages) => [...prevMessages, assistantMessage]);
-    } else {
-      console.error("Error sending message:", response.statusText);
-      alert("Error sending message. Please try again.");
-    }
-
+    const query = inputFieldRef.current?.value || "";
     if (inputFieldRef.current) {
       inputFieldRef.current.value = "";
     }
-  };
+    try {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const assistantMessage: Message = {
+          text: data.response,
+          sender: "assistant",
+          timestamp: Date.now(),
+        };
+        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+      } else {
+        console.error("Error sending message:", response.statusText);
+        const errorMessage: Message = {
+          text: "Error sending message. Please try again.",
+          sender: "assistant",
+          timestamp: Date.now(),
+        };
+        setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage: Message = {
+        text: "Error sending message. Please try again.",
+        sender: "assistant",
+        timestamp: Date.now(),
+      };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    }
+  }
 
   return (
     <div className="chat-box">
@@ -52,7 +64,7 @@ export const ChatBox = () => {
         ))}
       </div>
       <div className="chat-input">
-        <input type="text" placeholder="Type a message..." ref={inputFieldRef} />
+        <input type="text" placeholder="Type a message..." ref={inputFieldRef} onKeyPress={(e) => e.key === "Enter" && handleSendMessage()} />
         <button onClick={handleSendMessage}>Send</button>
       </div>
     </div>
