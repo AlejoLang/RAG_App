@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import "./mainSideBar.css";
 import type { Document } from "@rag_app/shared";
+import { typeToCompact } from "../utils/typeToCompact";
 
 export const MainSideBar = ({
   modalRef,
@@ -23,10 +24,11 @@ export const MainSideBar = ({
       </button>
       <div className="uploaded-files">
         <h3>Recently Uploaded Files</h3>
-        <ul>
+        <ul className="uploaded-files-list">
           {documentsInfo?.map((file, index) => (
-            <li key={index} className="file-title">
-              {file.filename}
+            <li key={index} className="file-info">
+              <div className="file-title">{file.filename}</div>
+              <div className="file-type">{typeToCompact(file.contentType)}</div>
             </li>
           ))}
         </ul>
