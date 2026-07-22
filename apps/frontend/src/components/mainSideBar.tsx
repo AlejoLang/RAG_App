@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "./mainSideBar.css";
 import type { Document } from "@rag_app/shared";
 import { typeToCompact } from "../utils/typeToCompact";
+import { DocumentsList } from "./DocumentsList";
 
 export const MainSideBar = ({
   modalRef,
@@ -24,22 +25,7 @@ export const MainSideBar = ({
       </button>
       <div className="uploaded-files">
         <h3>Recently Uploaded Files</h3>
-        <ul className="uploaded-files-list">
-          {documentsInfo?.map((file, index) => (
-            <li key={index} className="file-info">
-              <div className="file-title">{file.filename}</div>
-              {
-                file.status === "processing" ? (
-                  <div className="file-status processing">Processing</div>
-                ) : file.status === "ready" ? (
-                  <div className="file-status ready">{typeToCompact(file.contentType)}</div>
-                ) : (
-                  <div className="file-status failed">Failed</div>
-                )
-              }
-            </li>
-          ))}
-        </ul>
+        <DocumentsList documentsInfo={documentsInfo} />
       </div>
     </div>
   );
