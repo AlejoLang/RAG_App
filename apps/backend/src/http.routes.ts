@@ -20,6 +20,7 @@ export const httpRoutes = new Elysia()
       }
 
       const fileExtension = file.name.split(".").pop() ?? "";
+      const fileNameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
 
       let chunks: string[] = [];
 
@@ -40,7 +41,7 @@ export const httpRoutes = new Elysia()
       const [documentRecord] = await db
         .insert(documents)
         .values({
-          filename: file.name,
+          filename: fileNameWithoutExtension,
           contentType: file.type,
           status: "processing",
         })
