@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { type Message } from "../../types";
 import "./chatBox.css";
+import { aiQuerry } from "../api/ai";
 
 export const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,41 +18,13 @@ export const ChatBox = () => {
     if (inputFieldRef.current) {
       inputFieldRef.current.value = "";
     }
-    try {
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const assistantMessage: Message = {
-          text: data.response,
-          sender: "assistant",
-          timestamp: Date.now(),
-        };
-        setMessages((prevMessages) => [...prevMessages, assistantMessage]);
-      } else {
-        console.error("Error sending message:", response.statusText);
-        const errorMessage: Message = {
-          text: "Error sending message. Please try again.",
-          sender: "assistant",
-          timestamp: Date.now(),
-        };
-        setMessages((prevMessages) => [...prevMessages, errorMessage]);
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMessage: Message = {
-        text: "Error sending message. Please try again.",
-        sender: "assistant",
-        timestamp: Date.now(),
-      };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
-    }
+    const response = await aiQuerry(query);
+    const responseMessage: Message = {
+      text: response,
+      sender: "assistant",
+      timestamp: Date.now()
+    };
+    setMessages((prevMessages) => [...prevMessages, responseMessage]);
   }
 
   return (
@@ -64,7 +37,7 @@ export const ChatBox = () => {
         ))}
       </div>
       <div className="chat-input">
-        <input type="text" placeholder="Type a message..." ref={inputFieldRef} onKeyPress={(e) => e.key === "Enter" && handleSendMessage()} />
+        <input type="text" placeholder="Type a message..." ref={inputFieldRef} onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} />
         <button onClick={handleSendMessage}>Send</button>
       </div>
     </div>

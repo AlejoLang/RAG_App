@@ -4,6 +4,7 @@ import { MainSideBar } from "../components/mainSideBar";
 import { UploadModal } from "../components/uploadModal";
 import type { Document } from "@rag_app/shared";
 import "./mainPage.css";
+import { getDocuments } from "../api/documents";
 
 export const MainPage = () => {
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -11,16 +12,8 @@ export const MainPage = () => {
 
   useEffect(() => {
     const fetchDocumentsInfo = async () => {
-      try {
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/documents_info");
-        if (!response.ok) {
-          throw new Error("Failed to fetch documents info");
-        }
-        const data: Document[] = await response.json();
-        setDocumentsInfo(data);
-      } catch (error) {
-        console.error("Error fetching documents info:", error);
-      }
+      const data = await getDocuments();
+      setDocumentsInfo(data);
     };
 
     fetchDocumentsInfo();

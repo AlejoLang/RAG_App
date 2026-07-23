@@ -1,6 +1,7 @@
 import { forwardRef, useRef, type Dispatch, type SetStateAction } from "react";
 import "./uploadModal.css";
 import type { Document } from "@rag_app/shared";
+import { uploadDocument } from "../api/documents";
 
 type UploadModalProps = {
   setDocumentsInfo: Dispatch<SetStateAction<Document[]>>;
@@ -19,16 +20,8 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
           alert("Unsupported file type. Please upload a .txt or .md file.");
           return;
         }
-        const formData = new FormData();
-        formData.append("file", file);
 
-        const uploadRequest = fetch(
-          import.meta.env.VITE_BACKEND_URL + "/file_upload",
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
+        const uploadRequest = uploadDocument(file);
 
         const documentRecordPlaceholder: Document = {
           id: "-1",
@@ -37,7 +30,6 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
           uploadedAt: new Date().toISOString(),
           status: "processing",
         };
-
         fileInput.value = "";
         (document.querySelector("#upload-modal") as HTMLDialogElement)?.close();
         setDocumentsInfo((prevDocuments) => [
@@ -46,9 +38,9 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
         ]);
 
         try {
-          const response = await uploadRequest;
-          if (!response.ok) {
-            console.error("Upload failed:", response.statusText);
+          const document = await uploadRequest;
+          if (!document) {
+            console.error("Upload failed");
             setDocumentsInfo((prevDocuments) =>
               prevDocuments.map((doc) =>
                 doc.filename === documentRecordPlaceholder.filename
@@ -58,12 +50,10 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
             );
             return;
           }
-          const { documentRecord }: { documentRecord: Document } =
-            await response.json();
           setDocumentsInfo((prevDocuments) =>
             prevDocuments.map((doc) =>
               doc.filename === documentRecordPlaceholder.filename
-                ? documentRecord
+                ? document
                 : doc,
             ),
           );
