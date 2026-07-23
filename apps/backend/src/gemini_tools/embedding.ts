@@ -1,6 +1,4 @@
-import { config } from "dotenv";
 import { GoogleGenAI, type GoogleGenAIOptions } from "@google/genai";
-config();
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
 
