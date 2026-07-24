@@ -11,9 +11,14 @@
     "build": "bun --cwd apps/frontend build",
     "lint": "bun --cwd apps/frontend lint",
     "typecheck": "bunx tsc -p apps/backend/tsconfig.json --noEmit",
-    "check": "bun run typecheck && bun run lint && bun run build"
+    "check": "bun run typecheck && bun run lint && bun run build",
+    "test": "vitest"
   },
   "dependencies": {
     "@google/genai": "^2.12.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.0",
+    "vitest": "^4.1.10"
   }
 }

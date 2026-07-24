@@ -1,0 +1,62 @@
+import { describe, it, expect, vi, beforeAll } from "vitest";
+import { UploadModal } from "./uploadModal";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { uploadDocument } from "../api/documents";
+
+vi.mock("../api/documents", () => ({
+  uploadDocument: vi.fn().mockResolvedValue({
+    id: "123",
+    filename: "test.txt",
+    contentType: "text/plain",
+    uploadedAt: "2024-01-01",
+    status: "completed",
+  }),
+}));
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.close = vi.fn();
+});
+
+describe("UploadModal", () => {
+  it("renders without crashing", () => {
+    const setDocumentsInfo = vi.fn();
+    const { container } = render(<UploadModal setDocumentsInfo={setDocumentsInfo}/>);
+    expect(container).toBeInTheDocument();
+  });
+
+  it("renders the file input and upload button", () => {
+    const setDocumentsInfo = vi.fn();
+    const { getByText, getByLabelText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} />);
+    const textInput = getByLabelText("Select a file to upload:");
+    const button = getByText("Upload");
+    expect(textInput).toBeInTheDocument();
+    expect(button).toBeInTheDocument();
+  });
+
+  it("uploads a file and updates documents", async () => {
+    const setDocumentsInfo = vi.fn();
+
+    const { getByText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} />);
+
+    const input = screen.getByLabelText(/select a file/i);
+    const button = getByText("Upload");
+
+    const file = new File(["hello world"], "test.txt", {
+      type: "text/plain",
+    });
+
+    await userEvent.upload(input, file);
+    await userEvent.click(button);
+
+    const uploadDocumentMock = vi.mocked(uploadDocument);
+
+    await waitFor(() => {
+      expect(uploadDocumentMock).toHaveBeenCalledWith(file);
+    });
+
+    await waitFor(() => {
+      expect(setDocumentsInfo).toHaveBeenCalledTimes(2);
+    });
+  });
+})
