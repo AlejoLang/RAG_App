@@ -8,6 +8,9 @@ export const ChatBox = () => {
   const inputFieldRef = useRef<HTMLInputElement>(null);
 
   const handleSendMessage = async () => {
+    if(inputFieldRef.current?.value == '') {
+      return;
+    }
     const newMessage: Message = {
       text: inputFieldRef.current?.value || "",
       sender: "user",
