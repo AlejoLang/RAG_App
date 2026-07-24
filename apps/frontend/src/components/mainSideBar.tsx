@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import "./mainSideBar.css";
 import type { Document } from "@rag_app/shared";
-import { typeToCompact } from "../utils/typeToCompact";
 import { DocumentsList } from "./DocumentsList";
 
 export const MainSideBar = ({
