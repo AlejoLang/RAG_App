@@ -1,3 +1,4 @@
+// Splits a md text based on a fixed chunk size
 export const txtSplitByChunks = (text: string, chunkSize: number): string[] => {
   const chunks: string[] = [];
   if(chunkSize <= 0) {
@@ -14,11 +15,13 @@ export const txtSplitByChunks = (text: string, chunkSize: number): string[] => {
   return chunks;
 };
 
+// Splits a text based on paragraphs
 export const txtSplitByParagraphs = (text: string): string[] => {
   const paragraphs: string[] = text.split(/\n\s*\n/).map(paragraph => paragraph.trim()).filter(paragraph => paragraph.length > 0);
   return paragraphs;
 }
 
+// Splits a text based on paragraphs and then joins paragraphs to reach a certain chunk size
 export const txtSplitByParagraphsToChunks = (text: string, chunkSize: number): string[] => {
   if (chunkSize <= 0) {
     return [];

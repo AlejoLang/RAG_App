@@ -2,6 +2,9 @@ import { GoogleGenAI, type GoogleGenAIOptions } from "@google/genai";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
 
+// Calls the endpoint for gemini flash with a question to be answered using certain clues
+// Recieves a question as a string and a array of clues also as strings
+// Returns the response from the ai or a text with an error message
 export const aiQuery = async (
   query: string,
   clues: string[],

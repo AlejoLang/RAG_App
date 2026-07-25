@@ -3,24 +3,28 @@ import { type Message } from "../../types";
 import "./chatBox.css";
 import { aiQuerry } from "../api/ai";
 
+// Component that handles the display of the messages between the user and the ai. 
+// It also handles the user's interaction with the ai with a text input element
 export const ChatBox = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const inputFieldRef = useRef<HTMLInputElement>(null);
 
   const handleSendMessage = async () => {
-    if(inputFieldRef.current?.value == '') {
+    if(inputFieldRef.current?.value == '') { // Handles the case of empty input
       return;
     }
-    const newMessage: Message = {
+    const newMessage: Message = { // Creates the user message to use on the messages variable
       text: inputFieldRef.current?.value || "",
       sender: "user",
       timestamp: Date.now(),
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+
     const query = inputFieldRef.current?.value || "";
-    if (inputFieldRef.current) {
+    if (inputFieldRef.current) { // Cleans the input element
       inputFieldRef.current.value = "";
     }
+    // Performs the ai querry and adds the response on the messages array
     const response = await aiQuerry(query);
     const responseMessage: Message = {
       text: response,

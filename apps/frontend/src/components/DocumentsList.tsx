@@ -2,6 +2,11 @@ import type { Document } from "@rag_app/shared";
 import { typeToCompact } from "../utils/typeToCompact";
 import "./DocumentsList.css";
 
+// Component that shows a list of documents.
+// The list displays, for each document:
+//    - Name
+//    - File type
+//    - Status
 export const DocumentsList = ({
   documentsInfo,
 }: {

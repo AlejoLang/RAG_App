@@ -1,3 +1,4 @@
+// Makes a call to the bakcend to answer a question Returns the response or an error message as string in case of failure
 export async function aiQuerry(query: string): Promise<string> {
   try {
     const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/query", {

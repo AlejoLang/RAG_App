@@ -1,3 +1,4 @@
+// Splits a md text based on a fixed chunk size
 export const mdSplitByChunks = (text: string, chunkSize: number): string[] => {
   const chunks: string[] = [];
   if (chunkSize <= 0) {
@@ -14,6 +15,7 @@ export const mdSplitByChunks = (text: string, chunkSize: number): string[] => {
   return chunks;
 };
 
+// Splits a md text based on paragraphs
 export const mdSplitByParagraphs = (text: string): string[] => {
   const paragraphs: string[] = text
     .split(/\n\s*\n/)
@@ -22,6 +24,7 @@ export const mdSplitByParagraphs = (text: string): string[] => {
   return paragraphs;
 };
 
+// Splits a md text based on titles denoted by #
 export const mdSplitByTitles = (text: string): string[] => {
   // Function should split the text into chunks based on titles (lines starting with #)
   const titles: string[] = text
@@ -31,6 +34,7 @@ export const mdSplitByTitles = (text: string): string[] => {
   return titles;
 };
 
+// Splits a md text based on subtitles denoted by ##
 export const mdSplitBySubtitles = (text: string): string[] => {
   const subtitles: string[] = text
     .split(/\n(?=##[^#])/)
@@ -39,6 +43,7 @@ export const mdSplitBySubtitles = (text: string): string[] => {
   return subtitles;
 };
 
+// Splits a md text based on paragraphs and then joins paragraphs to reach a certain chunk size
 export const mdSplitByParagraphsToChunks = (
   text: string,
   chunkSize: number,

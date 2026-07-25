@@ -7,6 +7,9 @@ type UploadModalProps = {
   setDocumentsInfo: Dispatch<SetStateAction<Document[]>>;
 };
 
+// Component that handles the upload of a file to the backend using a file input and the uploadDocument function.
+// It's delcared with a fowardRef to pass the ref to the dialog element.
+// It alse recieves the setter for the documentsInfo array to update it when a file is uploaded.
 export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
   ({ setDocumentsInfo }, ref) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,6 +26,8 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
 
         const uploadRequest = uploadDocument(file);
 
+        // Once the uploadDocument dunction its called, the documentsInfo array is instantly 
+        // updated with the processing status and the modal is closed
         const documentRecordPlaceholder: Document = {
           id: "-1",
           filename: file.name,
@@ -37,9 +42,13 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
           ...prevDocuments,
         ]);
 
+        // After the documentsInfo has been updated and the modal closed, it waits for the response from the backend
+        // If an error occurred, the status value on documentsInfo its updated to failed.
+        // If the file was uploaded successfully, the record of the document on documentsInfo is overwritten with the response from the
+        //backend to update the id, uploadedAt and status properties.
         try {
           const document = await uploadRequest;
-          if (!document) {
+          if (!document) { // Catches fail on the backend
             console.error("Upload failed");
             setDocumentsInfo((prevDocuments) =>
               prevDocuments.map((doc) =>
@@ -57,7 +66,7 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
                 : doc,
             ),
           );
-        } catch (error) {
+        } catch (error) { // Catches fails on the query
           console.error("Upload failed:", error);
           setDocumentsInfo((prevDocuments) =>
             prevDocuments.map((doc) =>

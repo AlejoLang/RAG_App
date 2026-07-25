@@ -2,6 +2,8 @@ import "./mainSideBar.css";
 import type { Document } from "@rag_app/shared";
 import { DocumentsList } from "./DocumentsList";
 
+// Component that encapsulates the button that opens up the upload file modal and the documents list
+// It recieves the reference to the modal to be able to open it as well as the list of documents to pass to the DocumentsList component
 export const MainSideBar = ({
   modalRef,
   documentsInfo,
@@ -14,7 +16,6 @@ export const MainSideBar = ({
       modalRef.current.showModal();
     }
   };
-
 
   return (
     <div className="main-sidebar">

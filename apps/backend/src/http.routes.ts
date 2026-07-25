@@ -38,6 +38,7 @@ export const httpRoutes = new Elysia()
           return { error: "Unsupported file type" };
       }
 
+      // First, inserts the the record with the processing status as it has not been embedded
       const [documentRecord] = await db
         .insert(documents)
         .values({
@@ -52,6 +53,7 @@ export const httpRoutes = new Elysia()
         return { error: "Failed to create document record" };
       }
 
+      // The document gets embedded
       const embeddedChunks = await Promise.all(
         chunks.map(async (chunkText, index) => {
           const embedding = await embedText(chunkText);
@@ -59,6 +61,7 @@ export const httpRoutes = new Elysia()
         }),
       );
 
+      // The pair of chunk - embedding is inserted into the db
       await db.insert(chunksTable).values(
         embeddedChunks.map((c) => ({
           documentId: documentRecord.id,
@@ -68,6 +71,7 @@ export const httpRoutes = new Elysia()
         })),
       );
 
+      // Once the embedding is done, the status is changed to ready
       await db
         .update(documents)
         .set({ status: "ready" })
@@ -97,12 +101,16 @@ export const httpRoutes = new Elysia()
         return { error: "No query provided" };
       }
 
+      // Embeds the querry to search for similar text
       const embedding = await embedText(query);
 
+      // Searches on the database for chunck with similar meaning as the query
       const similarChunks = getSimilarChunks(embedding, 5);
       const similarChunksContent = (await similarChunks).map(
         (chunk) => chunk.content,
       );
+
+      // Makes a call to the ai using the the query and the similar chuncks as clues
       const response = await aiQuery(query, similarChunksContent);
 
       set.status = 200;
