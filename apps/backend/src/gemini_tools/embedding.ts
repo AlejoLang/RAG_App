@@ -1,10 +1,11 @@
 import { GoogleGenAI, type GoogleGenAIOptions } from "@google/genai";
+import { aiQueue } from "./aiQueue";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
 
 // Creates an embedding from a text
 // Takes the text as string and ouputs a vector with the embedding or a empty vector on fail
-export const embedText = async (text: string): Promise<number[]> => {
+async function _embedText (text: string): Promise<number[]> {
   const options: GoogleGenAIOptions = {
     apiKey: GOOGLE_API_KEY,
   };
@@ -16,3 +17,11 @@ export const embedText = async (text: string): Promise<number[]> => {
   });
   return response.embeddings?.[0]?.values ?? [];
 };
+
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+export function embedText(text: string) {
+  return aiQueue.enqueue(() => _embedText(text), estimateTokens(text));
+}

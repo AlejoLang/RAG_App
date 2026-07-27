@@ -9,6 +9,11 @@ vi.mock("./gemini_tools/embedding", () => ({
   embedText: vi.fn().mockResolvedValue(new Array(768).fill(0.1)),
 }));
 
+vi.mock("./utils/processDocumentEmbedding", () => ({
+  processDocumentEmbedding: vi.fn(),
+}));
+
+
 afterEach(async () => {
   if (!process.env.DATABASE_URL?.includes("test")) {
     throw new Error(
@@ -89,7 +94,7 @@ describe("POST /file_upload", () => {
       }),
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(202);
     const data = await response.json();
     
     expect(data).toEqual(
@@ -98,7 +103,7 @@ describe("POST /file_upload", () => {
           id: expect.any(String),
           filename: "file",
           contentType: "text/plain",
-          status: "ready",
+          status: "processing",
           uploadedAt: expect.any(String),
         }),
       })
@@ -119,7 +124,7 @@ describe("POST /file_upload", () => {
       }),
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(202);
     const data = await response.json();
     expect(data).toEqual(
       expect.objectContaining({
@@ -127,7 +132,7 @@ describe("POST /file_upload", () => {
           id: expect.any(String),
           filename: "file",
           contentType: "text/markdown",
-          status: "ready",
+          status: "processing",
           uploadedAt: expect.any(String),
         }),
       })

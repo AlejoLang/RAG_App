@@ -14,20 +14,21 @@ vi.mock("../api/documents", () => ({
   }),
 }));
 
+const setDocumentsInfo = vi.fn();
+const trackDocument = vi.fn();
+
 beforeAll(() => {
   HTMLDialogElement.prototype.close = vi.fn();
 });
 
 describe("UploadModal", () => {
   it("renders without crashing", () => {
-    const setDocumentsInfo = vi.fn();
-    const { container } = render(<UploadModal setDocumentsInfo={setDocumentsInfo}/>);
+    const { container } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} trackDocument={trackDocument}/>);
     expect(container).toBeInTheDocument();
   });
 
   it("renders the file input and upload button", () => {
-    const setDocumentsInfo = vi.fn();
-    const { getByText, getByLabelText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} />);
+    const { getByText, getByLabelText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} trackDocument={trackDocument}/>);
     const textInput = getByLabelText("Select a file to upload:");
     const button = getByText("Upload");
     expect(textInput).toBeInTheDocument();
@@ -35,9 +36,8 @@ describe("UploadModal", () => {
   });
 
   it("uploads a file and updates documents", async () => {
-    const setDocumentsInfo = vi.fn();
-
-    const { getByText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} />);
+    vi.clearAllMocks();
+    const { getByText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} trackDocument={trackDocument}/>);
 
     const input = screen.getByLabelText(/select a file/i);
     const button = getByText("Upload");
@@ -56,7 +56,10 @@ describe("UploadModal", () => {
     });
 
     await waitFor(() => {
-      expect(setDocumentsInfo).toHaveBeenCalledTimes(2);
+      expect(setDocumentsInfo).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(trackDocument).toHaveBeenCalledTimes(1);
     });
   });
 })

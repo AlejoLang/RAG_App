@@ -3,7 +3,10 @@ import { httpRoutes } from './src/http.routes';
 import cors from '@elysiajs/cors';
 
 const app = new Elysia()
-  .use(cors({}))
+  .use(cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+    }))
   .get('/', () => 'Hello from backend')
   .use(httpRoutes)
   .listen(3000);

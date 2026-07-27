@@ -3,10 +3,12 @@ import { txtSplitByParagraphsToChunks } from "./utils/txtSplitter";
 import { mdSplitByParagraphsToChunks } from "./utils/mdSplitter";
 import { embedText } from "./gemini_tools/embedding";
 import { db } from "./db";
-import { documents, chunks as chunksTable } from "./db/schema";
-import { desc, eq } from "drizzle-orm";
+import { documents } from "./db/schema";
+import { desc } from "drizzle-orm";
 import { getSimilarChunks } from "./utils/getSimilarChuncks";
 import { aiQuery } from "./gemini_tools/aiQuerry";
+import { documentEvents } from "./events/documentEmitter";
+import { processDocumentEmbedding } from "./utils/processDocumentEmbedding";
 
 export const httpRoutes = new Elysia()
   .post(
@@ -53,37 +55,10 @@ export const httpRoutes = new Elysia()
         return { error: "Failed to create document record" };
       }
 
-      // The document gets embedded
-      const embeddedChunks = await Promise.all(
-        chunks.map(async (chunkText, index) => {
-          const embedding = await embedText(chunkText);
-          return { content: chunkText, chunkIndex: index, embedding };
-        }),
-      );
+      processDocumentEmbedding(documentRecord.id, chunks);
 
-      // The pair of chunk - embedding is inserted into the db
-      await db.insert(chunksTable).values(
-        embeddedChunks.map((c) => ({
-          documentId: documentRecord.id,
-          content: c.content,
-          chunkIndex: c.chunkIndex,
-          embedding: c.embedding,
-        })),
-      );
-
-      // Once the embedding is done, the status is changed to ready
-      await db
-        .update(documents)
-        .set({ status: "ready" })
-        .where(eq(documents.id, documentRecord.id));
-
-      set.status = 200;
-      return {
-        documentRecord: {
-          ...documentRecord,
-          status: "ready",
-        },
-      };
+      set.status = 202;
+      return { documentRecord };
     },
     {
       body: t.Object({
@@ -128,5 +103,43 @@ export const httpRoutes = new Elysia()
       .from(documents)
       .orderBy(desc(documents.uploadedAt));
     return documentsInfo;
+  })
+  .get("/documents/:id/status_stream", ({ params, request }) => {
+    const documentId = params.id;
+
+    const stream = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ status: "processing" })}\n\n`),
+        );
+
+        const onEvent = (event: { status: string }) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(event)}\n\n`),
+          );
+          controller.close();
+        };
+
+        documentEvents.once(documentId, onEvent);
+
+        request.signal.addEventListener("abort", () => {
+          documentEvents.removeListener(documentId, onEvent);
+          controller.close();
+        });
+      },
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "http://localhost:5173",
+        "Access-Control-Allow-Credentials": "true",
+      },
+    });
   });
 
