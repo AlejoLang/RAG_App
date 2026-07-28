@@ -3,8 +3,5 @@
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "bun install"
-  },
-  "deploy": {
-    "startCommand": "cd apps/backend && bun run start"
   }
 }
