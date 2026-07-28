@@ -29,7 +29,7 @@ describe("UploadModal", () => {
 
   it("renders the file input and upload button", () => {
     const { getByText, getByLabelText } = render(<UploadModal setDocumentsInfo={setDocumentsInfo} trackDocument={trackDocument}/>);
-    const textInput = getByLabelText("Select a file to upload:");
+    const textInput = getByLabelText("Select a file to upload (txt or md):");
     const button = getByText("Upload");
     expect(textInput).toBeInTheDocument();
     expect(button).toBeInTheDocument();

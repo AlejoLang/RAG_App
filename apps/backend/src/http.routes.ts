@@ -10,6 +10,8 @@ import { aiQuery } from "./gemini_tools/aiQuerry";
 import { documentEvents } from "./events/documentEmitter";
 import { processDocumentEmbedding } from "./utils/processDocumentEmbedding";
 
+const MAX_SIZE = 5 * 1024 * 1024;
+
 export const httpRoutes = new Elysia()
   .post(
     "/file_upload",
@@ -19,6 +21,11 @@ export const httpRoutes = new Elysia()
       if (!file) {
         set.status = 400;
         return { error: "No file uploaded" };
+      }
+
+      if(file.size > MAX_SIZE) {
+        set.status = 413;
+        return { error: "File size exceeds maximun" }
       }
 
       const fileExtension = file.name.split(".").pop() ?? "";

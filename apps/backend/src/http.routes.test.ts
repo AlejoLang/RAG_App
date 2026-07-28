@@ -41,6 +41,24 @@ describe("POST /file_upload", () => {
     expect(data).toEqual({ error: "Unsupported file type" });
   });
 
+  it("returns an error when the file is too big", async () => {
+    const formData = new FormData();
+    const size = 6 * 1024 * 1024; // 6MB
+    const buffer = new ArrayBuffer(size);
+    formData.append("file", new File([buffer], "file.unsupported"));
+
+    const response = await httpRoutes.handle(
+      new Request("http://localhost/file_upload", {
+        method: "POST",
+        body: formData,
+      }),
+    );
+
+    expect(response.status).toBe(413);
+    const data = await response.json();
+    expect(data).toEqual({ error: "File size exceeds maximun" });
+  })
+
   it("returns an error when no file is uploaded", async () => {
     const formData = new FormData();
 

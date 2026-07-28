@@ -8,6 +8,8 @@ type UploadModalProps = {
   trackDocument: (documentId: string) => void;
 };
 
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
 // Component that handles the upload of a file to the backend using a file input and the uploadDocument function.
 // It's delcared with a fowardRef to pass the ref to the dialog element.
 // It also recieves the setter for the documentsInfo array to update it when a file is uploaded.
@@ -22,6 +24,11 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
         const fileExtension = file.name.split(".").pop() ?? "";
         if (!["txt", "md"].includes(fileExtension.toLowerCase())) {
           alert("Unsupported file type. Please upload a .txt or .md file.");
+          return;
+        }
+
+        if(file.size > MAX_SIZE) {
+          alert("File size exceeds maximun (5MB)");
           return;
         }
 
@@ -51,7 +58,7 @@ export const UploadModal = forwardRef<HTMLDialogElement, UploadModalProps>(
       <dialog className="upload-modal" id="upload-modal" ref={ref}>
         <div>
           <label htmlFor="file-input" className="file-input-label">
-            Select a file to upload:
+            Select a file to upload (txt or md):
           </label>
           <input
             type="file"
