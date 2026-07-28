@@ -31,6 +31,17 @@ export const txtSplitByParagraphsToChunks = (text: string, chunkSize: number): s
   let currentChunk = "";
 
   for (const paragraph of paragraphs) {
+    // If a single paragraph alone exceeds chunkSize, flush current chunk
+    // and hard-split the paragraph itself.
+    if (paragraph.length >= chunkSize) {
+      if (currentChunk) {
+        chunks.push(currentChunk);
+        currentChunk = "";
+      }
+      chunks.push(...txtSplitByChunks(paragraph, chunkSize));
+      continue;
+    }
+
     currentChunk += (currentChunk ? "\n\n" : "") + paragraph;
 
     if (currentChunk.length >= chunkSize) {
@@ -44,4 +55,4 @@ export const txtSplitByParagraphsToChunks = (text: string, chunkSize: number): s
   }
 
   return chunks;
-}
+};
