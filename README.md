@@ -40,4 +40,3 @@ From the root:
 ## Notes
 
 The app works with text and markdown files only for now.
-
